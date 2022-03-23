@@ -9,6 +9,24 @@ import (
 )
 
 func TestPipe(t *testing.T) {
+	i := f.Pipe(o.Some(1)).
+		Then(o.Map(func(a int) int {
+			return a + 10
+		})).
+		Result()
+
+	result := o.Fold(
+		i,
+		func() string { return "nothing" },
+		func(a int) string { return fmt.Sprintf("got: %d", a) },
+	)
+
+	if result != "got: 11" {
+		t.Fail()
+	}
+}
+
+func TestPipeUnsafe(t *testing.T) {
 	i := f.PipeUnsafe[o.Option[string]](o.Some(1)).
 		ThenSafe(o.MapI(func(a int) string {
 			return fmt.Sprintf("got: %d", a)

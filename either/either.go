@@ -65,3 +65,24 @@ func ChainI[E any, A any, B any](
 		return chain(o.(Either[E, A]))
 	}
 }
+
+func Map[E any, A any, B any](
+	fab func(A) B,
+) func(Either[E, A]) Either[E, B] {
+	return func(e Either[E, A]) Either[E, B] {
+		if e.tag == left {
+			return Either[E, B]{tag: left, left: e.left}
+		}
+
+		return Either[E, B]{tag: right, right: fab(e.right)}
+	}
+}
+
+func MapI[E any, A any, B any](
+	fab func(A) B,
+) func(interface{}) Either[E, B] {
+	mapF := Map[E](fab)
+	return func(o interface{}) Either[E, B] {
+		return mapF(o.(Either[E, A]))
+	}
+}
