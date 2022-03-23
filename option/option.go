@@ -28,9 +28,9 @@ func (o Option[A]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(o.value)
 }
 
-func (o Option[A]) UnmarshalJSON(bytes []byte) error {
+func (o *Option[A]) UnmarshalJSON(bytes []byte) error {
 	v := (*A)(nil)
-	json.Unmarshal(bytes, v)
+	json.Unmarshal(bytes, &v)
 
 	if v != nil {
 		o.tag = some
