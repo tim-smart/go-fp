@@ -9,12 +9,11 @@ import (
 )
 
 func TestMap(t *testing.T) {
-	result := f.
+	err, value := f.
 		PipeUnsafe[o.Option[string]](o.Some(1)).
 		ThenSafe(o.MapI(func(a int) string { return "asdc" })).
-		Result()
-
-	err, value := o.Unwrap(result)
+		Result().
+		Unwrap()
 
 	if err != nil {
 		t.Error("err not nil")

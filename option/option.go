@@ -56,6 +56,24 @@ func FromNilable[A any](a *A) Option[A] {
 	}
 }
 
+func FromNilableI[A any](a *A) any {
+	return FromNilable(a)
+}
+
+type eitherable[E any, A any] interface {
+	Unwrap() (*E, *A)
+}
+
+func FromEither[A any](either eitherable[any, A]) Option[A] {
+	e, a := either.Unwrap()
+
+	if e != nil {
+		return None[A]()
+	}
+
+	return Some(*a)
+}
+
 func IsSome[A any](o Option[A]) bool {
 	return o.tag == some
 }
@@ -73,18 +91,35 @@ func None[A any]() Option[A] {
 }
 
 func Fold[A any, B any](
-	o Option[A],
 	onNone func() B,
 	onSome func(A) B,
-) B {
+) func(Option[A]) B {
+	return func(o Option[A]) B {
+		if o.tag == none {
+			return onNone()
+		}
+
+		return onSome(*o.value)
+	}
+}
+
+func (o Option[A]) GetOrElse(onNone func() A) A {
 	if o.tag == none {
 		return onNone()
 	}
 
-	return onSome(*o.value)
+	return *o.value
 }
 
-func Unwrap[A any](o Option[A]) (error, *A) {
+func (o Option[A]) GetOrElseValue(orElse A) A {
+	if o.tag == none {
+		return orElse
+	}
+
+	return *o.value
+}
+
+func (o Option[A]) Unwrap() (error, *A) {
 	if o.tag == none {
 		return errors.New("Unwrap: got none"), o.value
 	}
@@ -151,5 +186,61 @@ func ChainNilableI[A any, B any](
 	chain := ChainNilable(f)
 	return func(o interface{}) Option[B] {
 		return chain(o.(Option[A]))
+	}
+}
+
+func Filter[A any](f func(A) bool) func(Option[A]) Option[A] {
+	return func(option Option[A]) Option[A] {
+		if option.tag == none {
+			return option
+		} else if f(*option.value) == true {
+			return option
+		}
+
+		return Option[A]{tag: none}
+	}
+}
+
+func FilterI[A any](f func(A) bool) func(interface{}) Option[A] {
+	fn := Filter(f)
+	return func(option interface{}) Option[A] {
+		return fn(option.(Option[A]))
+	}
+}
+
+func Try[A any](f func() (A, error)) Option[A] {
+	a, err := f()
+	if err != nil {
+		return Option[A]{tag: none}
+	}
+	return Option[A]{tag: some, value: &a}
+}
+
+func TryK[A any, B any](f func(A) (B, error)) func(A) Option[B] {
+	return func(a A) Option[B] {
+		return Try(func() (B, error) { return f(a) })
+	}
+}
+
+func TryKI[A any, B any](f func(A) (B, error)) func(interface{}) Option[B] {
+	return func(a interface{}) Option[B] {
+		return Try(func() (B, error) { return f(a.(A)) })
+	}
+}
+
+func ChainTryK[A any, B any](f func(A) (B, error)) func(Option[A]) Option[B] {
+	return func(option Option[A]) Option[B] {
+		if option.tag == none {
+			return Option[B]{tag: none}
+		}
+
+		return Try(func() (B, error) { return f(*option.value) })
+	}
+}
+
+func ChainTryKI[A any, B any](f func(A) (B, error)) func(interface{}) Option[B] {
+	fn := ChainTryK(f)
+	return func(either interface{}) Option[B] {
+		return fn(either.(Option[A]))
 	}
 }

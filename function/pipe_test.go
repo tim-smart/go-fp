@@ -16,10 +16,9 @@ func TestPipe(t *testing.T) {
 		Result()
 
 	result := o.Fold(
-		i,
 		func() string { return "nothing" },
 		func(a int) string { return fmt.Sprintf("got: %d", a) },
-	)
+	)(i)
 
 	if result != "got: 11" {
 		t.Fail()
@@ -27,16 +26,16 @@ func TestPipe(t *testing.T) {
 }
 
 func TestPipeUnsafe(t *testing.T) {
-	i := f.PipeUnsafe[o.Option[string]](o.Some(1)).
+	err, result := f.PipeUnsafe[o.Option[string]](o.Some(1)).
 		ThenSafe(o.MapI(func(a int) string {
 			return fmt.Sprintf("got: %d", a)
 		})).
 		Then(o.Map(func(a string) string {
 			return fmt.Sprintf("test: %s", a)
 		})).
-		Result()
+		Result().
+		Unwrap()
 
-	err, result := o.Unwrap(i)
 	if err != nil {
 		t.Fail()
 	}
