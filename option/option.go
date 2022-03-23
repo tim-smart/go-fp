@@ -1,6 +1,9 @@
 package option
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type tag uint8
 
@@ -12,6 +15,32 @@ const (
 type Option[T any] struct {
 	tag   tag
 	value *T
+}
+
+var _ json.Marshaler = (*Option[int])(nil)
+var _ json.Unmarshaler = (*Option[int])(nil)
+
+func (o Option[A]) MarshalJSON() ([]byte, error) {
+	if o.tag == none {
+		return []byte("null"), nil
+	}
+
+	return json.Marshal(o.value)
+}
+
+func (o Option[A]) UnmarshalJSON(bytes []byte) error {
+	v := (*A)(nil)
+	json.Unmarshal(bytes, v)
+
+	if v != nil {
+		o.tag = some
+		o.value = v
+	} else {
+		o.tag = none
+		o.value = nil
+	}
+
+	return nil
 }
 
 func FromNilable[A any](a *A) Option[A] {
