@@ -12,9 +12,9 @@ const (
 	none
 )
 
-type Option[T any] struct {
+type Option[A any] struct {
 	tag   tag
-	value *T
+	value *A
 }
 
 var _ json.Marshaler = (*Option[int])(nil)
@@ -56,20 +56,20 @@ func FromNilable[A any](a *A) Option[A] {
 	}
 }
 
-func IsSome[T any](o Option[T]) bool {
+func IsSome[A any](o Option[A]) bool {
 	return o.tag == some
 }
 
-func IsNone[T any](o Option[T]) bool {
+func IsNone[A any](o Option[A]) bool {
 	return o.tag == none
 }
 
-func Some[T any](a T) Option[T] {
-	return Option[T]{tag: some, value: &a}
+func Some[A any](a A) Option[A] {
+	return Option[A]{tag: some, value: &a}
 }
 
-func None[T any]() Option[T] {
-	return Option[T]{tag: none}
+func None[A any]() Option[A] {
+	return Option[A]{tag: none}
 }
 
 func Fold[A any, B any](
