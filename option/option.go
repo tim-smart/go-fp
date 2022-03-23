@@ -64,40 +64,44 @@ func Unwrap[A any](o Option[A]) (error, A) {
 	return nil, o.value
 }
 
-func Chain_[A any, B any](
-	oa Option[A],
-	f func(A) Option[B],
-) Option[B] {
-	if oa.tag == none {
-		return None[B]()
-	}
-
-	return f(oa.value)
-}
-
 func Chain[A any, B any](
 	f func(A) Option[B],
 ) func(Option[A]) Option[B] {
 	return func(o Option[A]) Option[B] {
-		return Chain_(o, f)
+		if o.tag == none {
+			return None[B]()
+		}
+
+		return f(o.value)
 	}
 }
 
-func Map_[A any, B any](
-	oa Option[A],
-	f func(A) B,
-) Option[B] {
-	if oa.tag == none {
-		return None[B]()
+func ChainI[A any, B any](
+	f func(A) Option[B],
+) func(interface{}) Option[B] {
+	chain := Chain(f)
+	return func(o interface{}) Option[B] {
+		return chain(o.(Option[A]))
 	}
-
-	return Some(f(oa.value))
 }
 
 func Map[A any, B any](
 	f func(A) B,
 ) func(Option[A]) Option[B] {
-	return func(o Option[A]) Option[B] {
-		return Map_(o, f)
+	return func(oa Option[A]) Option[B] {
+		if oa.tag == none {
+			return None[B]()
+		}
+
+		return Some(f(oa.value))
+	}
+}
+
+func MapI[A any, B any](
+	f func(A) B,
+) func(interface{}) Option[B] {
+	fMap := Map(f)
+	return func(o interface{}) Option[B] {
+		return fMap(o.(Option[A]))
 	}
 }

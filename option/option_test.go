@@ -6,11 +6,11 @@ import (
 	"github.com/tim-smart/go-fp/option"
 )
 
-func TestMap_(t *testing.T) {
+func TestMap(t *testing.T) {
 	r1 := option.Some(1)
-	r2 := option.Map_(r1, func(a int) string {
+	r2 := option.Map(func(a int) string {
 		return "asdc"
-	})
+	})(r1)
 	err, value := option.Unwrap(r2)
 
 	if err != nil {
