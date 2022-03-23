@@ -14,14 +14,14 @@ type Option[T any] struct {
 	value T
 }
 
-func FromNilable[T any](a *T) Option[T] {
+func FromNilable[A any](a *A) Option[A] {
 	if a == nil {
-		return Option[T]{
+		return Option[A]{
 			tag: none,
 		}
 	}
 
-	return Option[T]{
+	return Option[A]{
 		tag:   some,
 		value: *a,
 	}
@@ -43,17 +43,16 @@ func None[T any]() Option[T] {
 	return Option[T]{tag: none}
 }
 
-func Fold[T any, A any](
-	onNone func() A,
-	onSome func(T) A,
-) func(Option[T]) A {
-	return func(o Option[T]) A {
-		if o.tag == none {
-			return onNone()
-		}
-
-		return onSome(o.value)
+func Fold[A any, B any](
+	o Option[A],
+	onNone func() B,
+	onSome func(A) B,
+) B {
+	if o.tag == none {
+		return onNone()
 	}
+
+	return onSome(o.value)
 }
 
 func Unwrap[A any](o Option[A]) (error, A) {
@@ -62,6 +61,27 @@ func Unwrap[A any](o Option[A]) (error, A) {
 	}
 
 	return nil, o.value
+}
+
+func Map[A any, B any](
+	f func(A) B,
+) func(Option[A]) Option[B] {
+	return func(oa Option[A]) Option[B] {
+		if oa.tag == none {
+			return None[B]()
+		}
+
+		return Some(f(oa.value))
+	}
+}
+
+func MapI[A any, B any](
+	f func(A) B,
+) func(interface{}) Option[B] {
+	fMap := Map(f)
+	return func(o interface{}) Option[B] {
+		return fMap(o.(Option[A]))
+	}
 }
 
 func Chain[A any, B any](
@@ -85,23 +105,22 @@ func ChainI[A any, B any](
 	}
 }
 
-func Map[A any, B any](
-	f func(A) B,
+func ChainNilable[A any, B any](
+	f func(A) *B,
 ) func(Option[A]) Option[B] {
-	return func(oa Option[A]) Option[B] {
-		if oa.tag == none {
-			return None[B]()
+	return Chain(func(a A) Option[B] {
+		if b := f(a); b != nil {
+			return Some(*b)
 		}
-
-		return Some(f(oa.value))
-	}
+		return None[B]()
+	})
 }
 
-func MapI[A any, B any](
-	f func(A) B,
+func ChainNilableI[A any, B any](
+	f func(A) *B,
 ) func(interface{}) Option[B] {
-	fMap := Map(f)
+	chain := ChainNilable(f)
 	return func(o interface{}) Option[B] {
-		return fMap(o.(Option[A]))
+		return chain(o.(Option[A]))
 	}
 }
