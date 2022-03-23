@@ -40,7 +40,7 @@ func TestPipeUnsafe(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	if result != "test: got: 1" {
+	if *result != "test: got: 1" {
 		t.Fail()
 	}
 }

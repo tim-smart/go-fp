@@ -11,7 +11,7 @@ const (
 
 type Option[T any] struct {
 	tag   tag
-	value T
+	value *T
 }
 
 func FromNilable[A any](a *A) Option[A] {
@@ -23,7 +23,7 @@ func FromNilable[A any](a *A) Option[A] {
 
 	return Option[A]{
 		tag:   some,
-		value: *a,
+		value: a,
 	}
 }
 
@@ -36,7 +36,7 @@ func IsNone[T any](o Option[T]) bool {
 }
 
 func Some[T any](a T) Option[T] {
-	return Option[T]{tag: some, value: a}
+	return Option[T]{tag: some, value: &a}
 }
 
 func None[T any]() Option[T] {
@@ -52,10 +52,10 @@ func Fold[A any, B any](
 		return onNone()
 	}
 
-	return onSome(o.value)
+	return onSome(*o.value)
 }
 
-func Unwrap[A any](o Option[A]) (error, A) {
+func Unwrap[A any](o Option[A]) (error, *A) {
 	if o.tag == none {
 		return errors.New("Unwrap: got none"), o.value
 	}
@@ -71,7 +71,7 @@ func Map[A any, B any](
 			return None[B]()
 		}
 
-		return Some(f(oa.value))
+		return Some(f(*oa.value))
 	}
 }
 
@@ -92,7 +92,7 @@ func Chain[A any, B any](
 			return None[B]()
 		}
 
-		return f(o.value)
+		return f(*o.value)
 	}
 }
 

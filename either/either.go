@@ -9,8 +9,8 @@ const (
 
 type Either[E any, A any] struct {
 	tag   tag
-	left  E
-	right A
+	left  *E
+	right *A
 }
 
 func IsLeft[E any, A any](e Either[E, A]) bool {
@@ -22,11 +22,11 @@ func IsRight[E any, A any](e Either[E, A]) bool {
 }
 
 func Left[E any, A any](e E) Either[E, A] {
-	return Either[E, A]{tag: left, left: e}
+	return Either[E, A]{tag: left, left: &e}
 }
 
 func Right[E any, A any](a A) Either[E, A] {
-	return Either[E, A]{tag: right, right: a}
+	return Either[E, A]{tag: right, right: &a}
 }
 
 func Fold[E any, A any, B any](
@@ -35,13 +35,13 @@ func Fold[E any, A any, B any](
 	onRight func(A) B,
 ) B {
 	if e.tag == left {
-		return onLeft(e.left)
+		return onLeft(*e.left)
 	}
 
-	return onRight(e.right)
+	return onRight(*e.right)
 }
 
-func Unwrap[E any, A any](e Either[E, A]) (E, A) {
+func Unwrap[E any, A any](e Either[E, A]) (*E, *A) {
 	return e.left, e.right
 }
 
@@ -53,7 +53,7 @@ func Chain[E any, A any, B any](
 			return Either[E, B]{tag: left, left: e.left}
 		}
 
-		return fab(e.right)
+		return fab(*e.right)
 	}
 }
 
@@ -74,7 +74,8 @@ func Map[E any, A any, B any](
 			return Either[E, B]{tag: left, left: e.left}
 		}
 
-		return Either[E, B]{tag: right, right: fab(e.right)}
+		b := fab(*e.right)
+		return Either[E, B]{tag: right, right: &b}
 	}
 }
 

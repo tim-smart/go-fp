@@ -17,7 +17,7 @@ func TestMap(t *testing.T) {
 		t.Error("option not nil")
 	}
 
-	if value != "asdc" {
+	if *value != "asdc" {
 		t.Error("value not asdc")
 	}
 }
