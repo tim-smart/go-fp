@@ -3,18 +3,20 @@ package option_test
 import (
 	"testing"
 
-	"github.com/tim-smart/go-fp/option"
+	f "github.com/tim-smart/go-fp/function"
+	o "github.com/tim-smart/go-fp/option"
 )
 
 func TestMap(t *testing.T) {
-	r1 := option.Some(1)
-	r2 := option.Map(func(a int) string {
-		return "asdc"
-	})(r1)
-	err, value := option.Unwrap(r2)
+	result := f.
+		PipeUnsafe[o.Option[string]](o.Some(1)).
+		ThenSafe(o.MapI(func(a int) string { return "asdc" })).
+		Result()
+
+	err, value := o.Unwrap(result)
 
 	if err != nil {
-		t.Error("option not nil")
+		t.Error("err not nil")
 	}
 
 	if *value != "asdc" {
