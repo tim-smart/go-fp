@@ -1,19 +1,28 @@
 package function_test
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/tim-smart/go-fp/function"
+	f "github.com/tim-smart/go-fp/function"
+	o "github.com/tim-smart/go-fp/option"
 )
 
-func TestMap_(t *testing.T) {
-	i := function.Pipe(1).Then(func(i int) int {
-		return i + 1
-	}).Then(func(i int) int {
-		return i * 2
-	}).Result()
+func TestPipe(t *testing.T) {
+	i := f.PipeUnsafe[o.Option[string]](o.Some(1)).
+		ThenSafe(o.MapI(func(a int) string {
+			return fmt.Sprintf("got: %d", a)
+		})).
+		Then(o.Map(func(a string) string {
+			return fmt.Sprintf("test: %s", a)
+		})).
+		Result()
 
-	if i != 4 {
+	err, result := o.Unwrap(i)
+	if err != nil {
+		t.Fail()
+	}
+	if result != "test: got: 1" {
 		t.Fail()
 	}
 }
