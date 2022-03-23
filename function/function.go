@@ -1,47 +1,62 @@
-package function
+package pipeline
 
 func Identity[T any](a T) T {
 	return a
 }
 
-type Pipeline[T any] struct {
+type pineline[T any] struct {
 	value T
 }
 
-func Pipe[T any](value T) *Pipeline[T] {
-	return &Pipeline[T]{
-		value: value,
-	}
-}
-
-func (pipeline *Pipeline[T]) Then(f func(T) T) *Pipeline[T] {
-	pipeline.value = f(pipeline.value)
-	return pipeline
-}
-
-func (pipeline *Pipeline[T]) Result() T {
-	return pipeline.value
-}
-
-type UnsafePipeline[T any] struct {
+type unsafePipeline[T any] struct {
 	value interface{}
 }
 
-func PipeUnsafe[T any](value interface{}) *UnsafePipeline[T] {
-	return &UnsafePipeline[T]{
+func Pipe[T any](value T) *pipeline[T] {
+	return &pipeline[T]{
 		value: value,
 	}
 }
 
-func (pipeline *UnsafePipeline[T]) Then(f func(interface{}) interface{}) *UnsafePipeline[T] {
-	pipeline.value = f(pipeline.value)
-	return pipeline
+func (p *pipeline[T]) Then(f func(T) T) *pipeline[T] {
+	p.value = f(p.value)
+	return p
 }
 
-func (pipeline *UnsafePipeline[T]) MakeSafe() *Pipeline[T] {
-	return &Pipeline[T]{value: pipeline.value.(T)}
+func (p *pipeline[T]) ThenUnsafe(f func(T) interface{}) *unsafePipeline[T] {
+	return &unsafePipeline{
+		value: f(p.value),
+	}
 }
 
-func (pipeline *UnsafePipeline[T]) Result() T {
-	return pipeline.value.(T)
+func (p *pipeline[T]) ThenSafe(f func(interface{}) T) *pipeline[T] {
+	p.value = f(p.value)
+	return p
+}
+
+func (p *pipeline[T]) Unsafe(f func(interface{}) interface{}) *unsafePipeline[T] {
+	return &unsafePipeline{
+		value: f(p.value),
+	}
+}
+
+func (p *pipeline[T]) Result() T {
+	return p.value
+}
+
+func PipeUnsafe[T any](value interface{}) *unsafePipeline[T] {
+	return &unsafePipeline[T]{
+		value: value,
+	}
+}
+
+func (p *unsafePipeline[T]) ThenSafe(f func(interface{}) T) *pipeline[T] {
+	return &pipeline{
+		value: f(p.value),
+	}
+}
+
+func (p *unsafePipeline[T]) Unsafe(f func(interface{}) interface{}) *unsafePipeline[T] {
+	p.value = f(p.value)
+	return p
 }
