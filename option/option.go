@@ -89,7 +89,7 @@ func Chain[A any, B any](
 ) func(Option[A]) Option[B] {
 	return func(o Option[A]) Option[B] {
 		if o.tag == none {
-			return None[B]()
+			return Option[B]{tag: none}
 		}
 
 		return f(*o.value)
@@ -110,9 +110,9 @@ func ChainNilable[A any, B any](
 ) func(Option[A]) Option[B] {
 	return Chain(func(a A) Option[B] {
 		if b := f(a); b != nil {
-			return Some(*b)
+			return Option[B]{tag: some, value: b}
 		}
-		return None[B]()
+		return Option[B]{tag: none}
 	})
 }
 
