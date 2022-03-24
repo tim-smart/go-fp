@@ -74,11 +74,11 @@ func FromEither[A any](either eitherable[any, A]) Option[A] {
 	return Some(*a)
 }
 
-func IsSome[A any](o Option[A]) bool {
+func (o Option[A]) IsSome() bool {
 	return o.tag == some
 }
 
-func IsNone[A any](o Option[A]) bool {
+func (o Option[A]) IsNone() bool {
 	return o.tag == none
 }
 

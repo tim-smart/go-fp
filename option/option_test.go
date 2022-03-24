@@ -44,7 +44,7 @@ func TestJsonUnmarshal(t *testing.T) {
 	oa := o.None[int]()
 	oa.UnmarshalJSON([]byte("123"))
 
-	if o.IsNone(oa) {
+	if oa.IsNone() {
 		t.Fail()
 	}
 }
@@ -53,7 +53,7 @@ func TestJsonUnmarshalNull(t *testing.T) {
 	oa := o.Some(123)
 	oa.UnmarshalJSON([]byte("null"))
 
-	if o.IsSome(oa) {
+	if oa.IsSome() {
 		t.Fail()
 	}
 }

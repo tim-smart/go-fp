@@ -17,7 +17,7 @@ func TestTry(t *testing.T) {
 		func(err error) string { return "fail" },
 	)
 
-	if e.IsLeft(either) {
+	if either.IsLeft() {
 		t.Fail()
 	}
 
@@ -33,7 +33,7 @@ func TestTryFail(t *testing.T) {
 		func(err error) string { return "fail" },
 	)
 
-	if e.IsRight(either) {
+	if either.IsRight() {
 		t.Fail()
 	}
 

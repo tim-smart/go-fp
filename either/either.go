@@ -13,11 +13,11 @@ type Either[E any, A any] struct {
 	right *A
 }
 
-func IsLeft[E any, A any](e Either[E, A]) bool {
+func (e Either[E, A]) IsLeft() bool {
 	return e.tag == left
 }
 
-func IsRight[E any, A any](e Either[E, A]) bool {
+func (e Either[E, A]) IsRight() bool {
 	return e.tag == right
 }
 

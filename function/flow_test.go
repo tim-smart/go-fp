@@ -13,12 +13,12 @@ func TestFlow(t *testing.T) {
 		ThenSafe(o.ChainTryKI(strconv.Atoi)).
 		Result()
 
-	if o.IsNone(parseInt(nil)) == false {
+	if parseInt(nil).IsSome() {
 		t.Fail()
 	}
 
 	s := "jaklsdjf"
-	if o.IsNone(parseInt(&s)) == false {
+	if parseInt(&s).IsSome() {
 		t.Fail()
 	}
 
