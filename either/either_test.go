@@ -49,9 +49,7 @@ func TestChain(t *testing.T) {
 			return e.Left[int]("fail")
 		})).
 		Result().
-		GetOrElse(func(s string) int {
-			return 42
-		})
+		GetOrElseValue(42)
 
 	if result != 42 {
 		t.Fail()
@@ -67,9 +65,7 @@ func TestAlt(t *testing.T) {
 			return e.Right[string](10)
 		})).
 		Result().
-		GetOrElse(func(s string) int {
-			return 42
-		})
+		GetOrElseValue(42)
 
 	if result != 10 {
 		t.Fail()
