@@ -5,7 +5,7 @@ type pipeline[T any] struct {
 }
 
 type unsafePipeline[T any] struct {
-	value interface{}
+	value any
 }
 
 // `Pipe` starts a pipeline safely.
@@ -28,7 +28,7 @@ func (p *pipeline[T]) Then(f func(T) T) *pipeline[T] {
 
 // `ThenUnsafe` is used when the chained function has a different return type to
 // the pipeline's result type.
-func (p *pipeline[T]) ThenUnsafe(f func(T) interface{}) *unsafePipeline[T] {
+func (p *pipeline[T]) ThenUnsafe(f func(T) any) *unsafePipeline[T] {
 	return &unsafePipeline[T]{
 		value: f(p.value),
 	}
@@ -38,14 +38,14 @@ func (p *pipeline[T]) ThenUnsafe(f func(T) interface{}) *unsafePipeline[T] {
 // pipeline's result type.
 //
 // It marks the pipeline as "safe" again, so the result can be accessed.
-func (p *pipeline[T]) ThenSafe(f func(interface{}) T) *pipeline[T] {
+func (p *pipeline[T]) ThenSafe(f func(any) T) *pipeline[T] {
 	p.value = f(p.value)
 	return p
 }
 
-// `Unsafe` is used when the chained function has both input out return types
+// `Unsafe` is used when the chained function has both input and return types
 // different to the pipeline's desired result type.
-func (p *pipeline[T]) Unsafe(f func(interface{}) interface{}) *unsafePipeline[T] {
+func (p *pipeline[T]) Unsafe(f func(any) any) *unsafePipeline[T] {
 	return &unsafePipeline[T]{
 		value: f(p.value),
 	}
@@ -62,7 +62,7 @@ func (p *pipeline[T]) Result() T {
 //
 // If you need to start a pipeline with a type that is the same as the desired
 // final result type, then you can use `Pipe`.
-func PipeUnsafe[T any](value interface{}) *unsafePipeline[T] {
+func PipeUnsafe[T any](value any) *unsafePipeline[T] {
 	return &unsafePipeline[T]{
 		value: value,
 	}
@@ -72,7 +72,7 @@ func PipeUnsafe[T any](value interface{}) *unsafePipeline[T] {
 // pipeline's result type.
 //
 // It marks the pipeline as "safe" again, so the result can be accessed.
-func (p *unsafePipeline[T]) ThenSafe(f func(interface{}) T) *pipeline[T] {
+func (p *unsafePipeline[T]) ThenSafe(f func(any) T) *pipeline[T] {
 	return &pipeline[T]{
 		value: f(p.value),
 	}
@@ -80,7 +80,7 @@ func (p *unsafePipeline[T]) ThenSafe(f func(interface{}) T) *pipeline[T] {
 
 // `Unsafe` is used when the chained function has both input out return types
 // different to the pipeline's desired result type.
-func (p *unsafePipeline[T]) Unsafe(f func(interface{}) interface{}) *unsafePipeline[T] {
+func (p *unsafePipeline[T]) Unsafe(f func(any) any) *unsafePipeline[T] {
 	p.value = f(p.value)
 	return p
 }

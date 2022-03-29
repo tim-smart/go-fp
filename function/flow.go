@@ -28,7 +28,7 @@ func (f *flow[I, O]) Then(fb func(O) O) *flow[I, O] {
 
 // `ThenUnsafe` is used when the chained function has a different return type to
 // the pipeline's result type.
-func (f *flow[I, O]) ThenUnsafe(fb func(O) interface{}) *unsafeFlow[I, O] {
+func (f *flow[I, O]) ThenUnsafe(fb func(O) any) *unsafeFlow[I, O] {
 	fa := f.fn
 	return &unsafeFlow[I, O]{
 		fn: func(i I) any {

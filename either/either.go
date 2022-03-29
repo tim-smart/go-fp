@@ -92,9 +92,9 @@ func Chain[E any, A any, B any](
 
 func ChainI[E any, A any, B any](
 	fab func(A) Either[E, B],
-) func(interface{}) Either[E, B] {
+) func(any) Either[E, B] {
 	chain := Chain(fab)
-	return func(o interface{}) Either[E, B] {
+	return func(o any) Either[E, B] {
 		return chain(o.(Either[E, A]))
 	}
 }
@@ -113,9 +113,9 @@ func Alt[E any, A any](
 
 func AltI[E any, A any](
 	f func(E) Either[E, A],
-) func(interface{}) Either[E, A] {
+) func(any) Either[E, A] {
 	fn := Alt(f)
-	return func(o interface{}) Either[E, A] {
+	return func(o any) Either[E, A] {
 		return fn(o.(Either[E, A]))
 	}
 }
@@ -135,9 +135,9 @@ func Map[E any, A any, B any](
 
 func MapI[E any, A any, B any](
 	fab func(A) B,
-) func(interface{}) Either[E, B] {
+) func(any) Either[E, B] {
 	mapF := Map[E](fab)
-	return func(o interface{}) Either[E, B] {
+	return func(o any) Either[E, B] {
 		return mapF(o.(Either[E, A]))
 	}
 }
@@ -157,9 +157,9 @@ func MapLeft[E any, A any, E1 any](
 
 func MapLeftI[E any, A any, E1 any](
 	fab func(E) E1,
-) func(interface{}) Either[E1, A] {
+) func(any) Either[E1, A] {
 	mapF := MapLeft[E, A](fab)
-	return func(o interface{}) Either[E1, A] {
+	return func(o any) Either[E1, A] {
 		return mapF(o.(Either[E, A]))
 	}
 }
@@ -177,9 +177,9 @@ func Tap[E any, A any](
 
 func TapI[E any, A any](
 	f func(A) any,
-) func(interface{}) Either[E, A] {
+) func(any) Either[E, A] {
 	mapF := Tap[E](f)
-	return func(o interface{}) Either[E, A] {
+	return func(o any) Either[E, A] {
 		return mapF(o.(Either[E, A]))
 	}
 }
@@ -212,8 +212,8 @@ func TryK[E any, A any, B any](
 func TryKI[E any, A any, B any](
 	f func(A) (B, error),
 	onError func(error) E,
-) func(interface{}) Either[E, B] {
-	return func(a interface{}) Either[E, B] {
+) func(any) Either[E, B] {
+	return func(a any) Either[E, B] {
 		return Try(
 			func() (B, error) { return f(a.(A)) },
 			onError,
@@ -240,9 +240,9 @@ func ChainTryK[E any, A any, B any](
 func ChainTryKI[E any, A any, B any](
 	f func(A) (B, error),
 	onError func(error) E,
-) func(interface{}) Either[E, B] {
+) func(any) Either[E, B] {
 	fn := ChainTryK(f, onError)
-	return func(either interface{}) Either[E, B] {
+	return func(either any) Either[E, B] {
 		return fn(either.(Either[E, A]))
 	}
 }
@@ -266,9 +266,9 @@ func Filter[E any, A any](
 func FilterI[E any, A any](
 	f func(A) bool,
 	onFalse func(A) E,
-) func(interface{}) Either[E, A] {
+) func(any) Either[E, A] {
 	fn := Filter(f, onFalse)
-	return func(either interface{}) Either[E, A] {
+	return func(either any) Either[E, A] {
 		return fn(either.(Either[E, A]))
 	}
 }

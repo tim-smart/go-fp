@@ -141,9 +141,9 @@ func Map[A any, B any](
 
 func MapI[A any, B any](
 	f func(A) B,
-) func(interface{}) Option[B] {
+) func(any) Option[B] {
 	fMap := Map(f)
-	return func(o interface{}) Option[B] {
+	return func(o any) Option[B] {
 		return fMap(o.(Option[A]))
 	}
 }
@@ -162,9 +162,9 @@ func Chain[A any, B any](
 
 func ChainI[A any, B any](
 	f func(A) Option[B],
-) func(interface{}) Option[B] {
+) func(any) Option[B] {
 	chain := Chain(f)
-	return func(o interface{}) Option[B] {
+	return func(o any) Option[B] {
 		return chain(o.(Option[A]))
 	}
 }
@@ -182,9 +182,9 @@ func ChainNilable[A any, B any](
 
 func ChainNilableI[A any, B any](
 	f func(A) *B,
-) func(interface{}) Option[B] {
+) func(any) Option[B] {
 	chain := ChainNilable(f)
-	return func(o interface{}) Option[B] {
+	return func(o any) Option[B] {
 		return chain(o.(Option[A]))
 	}
 }
@@ -201,9 +201,9 @@ func Filter[A any](f func(A) bool) func(Option[A]) Option[A] {
 	}
 }
 
-func FilterI[A any](f func(A) bool) func(interface{}) Option[A] {
+func FilterI[A any](f func(A) bool) func(any) Option[A] {
 	fn := Filter(f)
-	return func(option interface{}) Option[A] {
+	return func(option any) Option[A] {
 		return fn(option.(Option[A]))
 	}
 }
@@ -222,8 +222,8 @@ func TryK[A any, B any](f func(A) (B, error)) func(A) Option[B] {
 	}
 }
 
-func TryKI[A any, B any](f func(A) (B, error)) func(interface{}) Option[B] {
-	return func(a interface{}) Option[B] {
+func TryKI[A any, B any](f func(A) (B, error)) func(any) Option[B] {
+	return func(a any) Option[B] {
 		return Try(func() (B, error) { return f(a.(A)) })
 	}
 }
@@ -238,9 +238,9 @@ func ChainTryK[A any, B any](f func(A) (B, error)) func(Option[A]) Option[B] {
 	}
 }
 
-func ChainTryKI[A any, B any](f func(A) (B, error)) func(interface{}) Option[B] {
+func ChainTryKI[A any, B any](f func(A) (B, error)) func(any) Option[B] {
 	fn := ChainTryK(f)
-	return func(either interface{}) Option[B] {
+	return func(either any) Option[B] {
 		return fn(either.(Option[A]))
 	}
 }
