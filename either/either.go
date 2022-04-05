@@ -30,12 +30,12 @@ func Right[E any, A any](a A) Either[E, A] {
 }
 
 type optionable[A any] interface {
-	Unwrap() (error, *A)
+	Unwrap() (*A, error)
 }
 
 func FromOption[A any, E any](onNone func() E) func(optionable[A]) Either[E, A] {
 	return func(o optionable[A]) Either[E, A] {
-		err, a := o.Unwrap()
+		a, err := o.Unwrap()
 
 		if err != nil {
 			return Left[A](onNone())

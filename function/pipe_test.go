@@ -26,7 +26,7 @@ func TestPipe(t *testing.T) {
 }
 
 func TestPipeUnsafe(t *testing.T) {
-	err, result := f.PipeUnsafe[o.Option[string]](o.Some(1)).
+	result, err := f.PipeUnsafe[o.Option[string]](o.Some(1)).
 		ThenSafe(o.MapI(func(a int) string {
 			return fmt.Sprintf("got: %d", a)
 		})).

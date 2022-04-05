@@ -9,7 +9,7 @@ import (
 )
 
 func TestMap(t *testing.T) {
-	err, value := f.
+	value, err := f.
 		PipeUnsafe[o.Option[string]](o.Some(1)).
 		ThenSafe(o.MapI(func(a int) string { return "asdc" })).
 		Result().

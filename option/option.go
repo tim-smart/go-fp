@@ -119,12 +119,12 @@ func (o Option[A]) GetOrElseValue(orElse A) A {
 	return *o.value
 }
 
-func (o Option[A]) Unwrap() (error, *A) {
+func (o Option[A]) Unwrap() (*A, error) {
 	if o.tag == none {
-		return errors.New("Unwrap: got none"), o.value
+		return nil, errors.New("Unwrap: got none")
 	}
 
-	return nil, o.value
+	return o.value, nil
 }
 
 func Map[A any, B any](
